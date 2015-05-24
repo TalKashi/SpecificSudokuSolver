@@ -8,6 +8,12 @@ import lpsolve.*;
 
 public class SudokuSolver {
 	
+	static final int INVALID = 0;
+	static final int SINGLE_PROBLEM = 1;
+	static final int ALL = 2;
+	static final int EXIT = 3;
+	
+	static final String ALL_STRING = "ALL";
 	static final String EXIT_STRING = "Q";
 	static final int VAR_NUMBER = 729;
 	static final int CELLS_NUM = 81;
@@ -21,22 +27,22 @@ public class SudokuSolver {
 	static double[] objFunc = new double[VAR_NUMBER + 1];
 	static double[] resultMatrix = new double[VAR_NUMBER];
 
-  public static void main(String[] args) {
+	public static void main(String[] args) {
+		boolean shouldExit = false;
 	  BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 	  
-	  //setFilePath("C:\\temp\\5.txt");
+	  setFilePath("C:\\temp\\5.txt");
 	  System.out.println("Welcome to the Sudoku Solver powered by a Specific algorithm");
 	  
 	  try {
-		  while(true) {
+		  while(!shouldExit) {
 			  System.out.println("Please enter 81 digits that represent the Sudoku puzzle, or Q to quit:");
 			  String line = reader.readLine();
-			  if(!isValidInput(line)) {
+			  switch(validateInput(line)) {
+			  case INVALID:
 				  System.out.println("Invalid input");
-			  } else if (line.toUpperCase().contains(EXIT_STRING)) {
 				  break;
-			  } else {
-				  // Run line 
+			  case SINGLE_PROBLEM:
 				  initLp();
 				  loadMatrixFromString(line);
 				  lp.setObjFn(objFunc);
@@ -49,6 +55,30 @@ public class SudokuSolver {
 				  //System.out.println(x);
 				  //lp.writeLp("modelSpecific"+x+".lp");
 				  lp.deleteLp();
+				  break;
+			  case ALL:
+				  br.reset();
+				  final long start = System.nanoTime();
+				  int lineNumber = 0;
+				  while ((line = getNextLine()) != null && lineNumber < 100) {
+					  initLp();
+					  loadMatrixFromString(line);
+					  lp.setObjFn(objFunc);
+					  lp.setMaxim();
+					  if(lp.solve() != LpSolve.OPTIMAL) {
+						  System.err.println("NOT OPTIMAL for line " + lineNumber);
+					  }
+					  lineNumber++;
+					  System.out.println("Finished line " + lineNumber);
+					  //lp.writeLp("modelSpecific"+x+".lp");
+					  lp.deleteLp();
+				  }
+				  final long end = System.nanoTime();
+				  System.out.println("finished in " + formatTime(end - start));
+				  break;
+			  case EXIT:
+				  shouldExit = true;
+				  break;
 			  }
 		  }
 	  } catch (LpSolveException e) {
@@ -111,28 +141,38 @@ public class SudokuSolver {
 		System.out.println();
 }
 
-	private static boolean isValidInput(String line) {
+	private static int validateInput(String line) {
 		if(line == null) {
-			return false;
+			return INVALID;
 		}
+		
 		if(line.length() == 1) {
 			if(line.toUpperCase().contains(EXIT_STRING)) {
-				return true;
+				return EXIT;
 			} else {
-				return false;
+				return INVALID;
 			}
 		}
+		
+		if(line.length() == 3) {
+			if(line.toUpperCase().contains(ALL_STRING)) {
+				return ALL;
+			} else {
+				return INVALID;
+			}
+		}
+		
 		if (line.length() != 81) {
-			return false;
+			return INVALID;
 		}
 		char[] arr = line.toCharArray();
 		for(int i = 0; i < arr.length; i++) {
 			if(arr[i] < '0' || arr[i] > '9') {
-				return false;
+				return INVALID;
 			}
 		}
 		
-		return true;
+		return SINGLE_PROBLEM;
 	}
 
 	public static int getIndex(int row, int column, int value) {
@@ -189,7 +229,7 @@ public class SudokuSolver {
 			colno[j1] = getIndex(i + 1, k2, value);
 			lp.addConstraintex(1, sparseRow, colno, LpSolve.EQ, v3);
 			
-			// TODO: No Other same values in the same box  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+			// No other cell with this value on the same 3x3 box
 			int boxX = boxXTopCorner + ((k2 - 1) / 3);
 			int boxY = boxYTopCorner + ((k2 - 1) % 3);
 			if(boxX == i && boxY == j) {
@@ -219,6 +259,7 @@ public class SudokuSolver {
 
 		try {
 			br = new BufferedReader(new FileReader(path));
+			br.mark(0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}	
