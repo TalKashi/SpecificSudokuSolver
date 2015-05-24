@@ -97,7 +97,7 @@ public class SudokuSolver {
 		}
 		System.out.println();
 		System.out.println();
-}
+	}
 
 	private static int validateInput(String line) {
 		if(line == null) {
@@ -211,11 +211,11 @@ public class SudokuSolver {
 			return null;
 		}
 	}
+	
 	private static void setFilePath(String path) {
 
 		try {
 			br = new BufferedReader(new FileReader(path));
-			br.mark(0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}	
@@ -342,5 +342,4 @@ public class SudokuSolver {
 			e.printStackTrace();
 		}
 	}
-		
 }
