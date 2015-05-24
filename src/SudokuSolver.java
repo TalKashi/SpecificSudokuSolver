@@ -29,69 +29,70 @@ public class SudokuSolver {
 
 	public static void main(String[] args) {
 		boolean shouldExit = false;
-	  BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 	  
-	  setFilePath("C:\\temp\\5.txt");
-	  System.out.println("Welcome to the Sudoku Solver powered by a Specific algorithm");
 	  
-	  try {
-		  while(!shouldExit) {
-			  System.out.println("Please enter 81 digits that represent the Sudoku puzzle, or Q to quit:");
-			  String line = reader.readLine();
-			  switch(validateInput(line)) {
-			  case INVALID:
-				  System.out.println("Invalid input");
-				  break;
-			  case SINGLE_PROBLEM:
-				  initLp();
-				  loadMatrixFromString(line);
-				  lp.setObjFn(objFunc);
-				  lp.setMaxim();
-				  if(lp.solve() != LpSolve.OPTIMAL) {
-					  System.err.println("No solution for the given line. Please enter a new valid sudoku puzzle");
-				  } else {
-					  printOutput();
-				  }				  
-				  //System.out.println(x);
-				  //lp.writeLp("modelSpecific"+x+".lp");
-				  lp.deleteLp();
-				  break;
-			  case ALL:
-				  br.reset();
-				  final long start = System.nanoTime();
-				  int lineNumber = 0;
-				  while ((line = getNextLine()) != null && lineNumber < 100) {
+		System.out.println("Welcome to the Sudoku Solver powered by a Specific algorithm");
+	  
+		try {
+			while(!shouldExit) {
+				System.out.println("Please enter 81 digits that represent the Sudoku puzzle, or ALL to run over all 10,000 problems, or Q to quit:");
+				String line = reader.readLine();
+				switch(validateInput(line)) {
+				case INVALID:
+					System.out.println("Invalid input");
+					break;
+				  case SINGLE_PROBLEM:
 					  initLp();
 					  loadMatrixFromString(line);
 					  lp.setObjFn(objFunc);
 					  lp.setMaxim();
 					  if(lp.solve() != LpSolve.OPTIMAL) {
-						  System.err.println("NOT OPTIMAL for line " + lineNumber);
-					  }
-					  lineNumber++;
-					  System.out.println("Finished line " + lineNumber);
+						  System.err.println("No solution for the given line. Please enter a new valid sudoku puzzle");
+					  } else {
+						  printOutput();
+					  }				  
+					  //System.out.println(x);
 					  //lp.writeLp("modelSpecific"+x+".lp");
 					  lp.deleteLp();
+					  break;
+				  case ALL:
+					  setFilePath("C:\\temp\\5.txt");
+					  final long start = System.nanoTime();
+					  int lineNumber = 0;
+					  while ((line = getNextLine()) != null) {
+						  initLp();
+						  loadMatrixFromString(line);
+						  lp.setObjFn(objFunc);
+						  lp.setMaxim();
+						  if(lp.solve() != LpSolve.OPTIMAL) {
+							  System.err.println("NOT OPTIMAL for line " + lineNumber);
+						  }
+						  lineNumber++;
+						  System.out.println("Finished line " + lineNumber);
+						  //lp.writeLp("modelSpecific"+x+".lp");
+						  lp.deleteLp();
+					  }
+					  final long end = System.nanoTime();
+					  System.out.println("finished in " + formatTime(end - start));
+					  closeFile();
+					  break;
+				  case EXIT:
+					  shouldExit = true;
+					  break;
 				  }
-				  final long end = System.nanoTime();
-				  System.out.println("finished in " + formatTime(end - start));
-				  break;
-			  case EXIT:
-				  shouldExit = true;
-				  break;
 			  }
+		  } catch (LpSolveException e) {
+			  e.printStackTrace();
 		  }
-	  } catch (LpSolveException e) {
-		  e.printStackTrace();
-	  }
-	  catch (IOException e) {
-		  e.printStackTrace();
-	  }
-	  
-	  //closeFile();
-	  
-	  System.out.println("Thanks for using our Specific Sudoku solver model!");
-	  
+		  catch (IOException e) {
+			  e.printStackTrace();
+		  }
+		  
+		  //closeFile();
+		  
+		  System.out.println("Thanks for using our Specific Sudoku solver model!");
+		  
 	  
 //	  try {
 //			
