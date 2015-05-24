@@ -24,7 +24,7 @@ public class SudokuSolver {
   public static void main(String[] args) {
 	  BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 	  
-	  setFilePath("C:\\temp\\5.txt");
+	  //setFilePath("C:\\temp\\5.txt");
 	  System.out.println("Welcome to the Sudoku Solver powered by a Specific algorithm");
 	  
 	  try {
@@ -42,9 +42,10 @@ public class SudokuSolver {
 				  lp.setObjFn(objFunc);
 				  lp.setMaxim();
 				  if(lp.solve() != LpSolve.OPTIMAL) {
-					  System.err.println("NOT OPTIMAL for the given line");
-				  }
-				  printOutput();
+					  System.err.println("No solution for the given line. Please enter a new valid sudoku puzzle");
+				  } else {
+					  printOutput();
+				  }				  
 				  //System.out.println(x);
 				  //lp.writeLp("modelSpecific"+x+".lp");
 				  lp.deleteLp();
@@ -57,7 +58,7 @@ public class SudokuSolver {
 		  e.printStackTrace();
 	  }
 	  
-	  closeFile();
+	  //closeFile();
 	  
 	  System.out.println("Thanks for using our Specific Sudoku solver model!");
 	  
@@ -132,7 +133,7 @@ public class SudokuSolver {
 		}
 		
 		return true;
-}
+	}
 
 	public static int getIndex(int row, int column, int value) {
 		return 81 * (row - 1) + 9 * (column - 1) + value;
