@@ -1,5 +1,8 @@
 *.class
 
+# LPsolver files
+*.lp
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
