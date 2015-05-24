@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
+import java.io.Console;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import lpsolve.*;
 
@@ -16,43 +18,106 @@ public class SudokuSolver {
 	static LpSolve lp;
 	static BufferedReader br = null;
 	static double[] objFunc = new double[VAR_NUMBER + 1];
+	static double[] resultMatrix = new double[VAR_NUMBER];
 
   public static void main(String[] args) {
-		try {
-			
-			final long start = System.nanoTime();
-
-			setFilePath("C:\\temp\\5.txt");
-
-			String line = null;
-			int x = 0;
-			while ((line = getNextLine()) != null && (x < 10000)) {
-				initLp();
-				loadMatrixFromString(line);
-				lp.setObjFn(objFunc);
-				lp.setMaxim();
-				if(lp.solve() != LpSolve.OPTIMAL) {
-					System.err.println("NOT OPTIMAL for line " + x);
-				}
-				x++;
-				//System.out.println(x);
-				//lp.writeLp("modelSpecific"+x+".lp");
-				lp.deleteLp();
-			}
-			
-			//lp.deleteLp();
-			
-			final long end = System.nanoTime();
-			System.out.println(formatTime(end - start));
-			System.out.println("DONE");
-
-			closeFile();
-			
-		} catch (LpSolveException e) {
-			e.printStackTrace();
-		}
-  }
+	  BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+	  
+	  setFilePath("C:\\temp\\5.txt");
+	  System.out.println("Welcome to the Sudoku Solver powered by a Specific algorithm");
+	  
+	  try {
+		  while(true) {
+			  System.out.println("Please enter 81 digits that represent the Sudoku puzzle:");
+			  String line = reader.readLine();
+			  if(!isValidInput(line)) {
+				  System.out.println("Invalid input");
+			  } else {
+				  // Run line 
+				  initLp();
+				  loadMatrixFromString(line);
+				  lp.setObjFn(objFunc);
+				  lp.setMaxim();
+				  if(lp.solve() != LpSolve.OPTIMAL) {
+					  System.err.println("NOT OPTIMAL for the given line");
+				  }
+				  printOutput();
+				  //System.out.println(x);
+				  //lp.writeLp("modelSpecific"+x+".lp");
+				  lp.deleteLp();
+			  }
+		  }
+	  } catch (LpSolveException e) {
+		  e.printStackTrace();
+	  }
+	  catch (IOException e) {
+		  e.printStackTrace();
+	}
+	  
+	  
+	  
+//	  try {
+//			
+//		final long start = System.nanoTime();
+//
+//		
+//
+//		String line = null;
+//		int x = 0;
+//		while ((line = getNextLine()) != null && (x < 10000)) {
+//			initLp();
+//			loadMatrixFromString(line);
+//			lp.setObjFn(objFunc);
+//			lp.setMaxim();
+//			if(lp.solve() != LpSolve.OPTIMAL) {
+//				System.err.println("NOT OPTIMAL for line " + x);
+//			}
+//			x++;
+//			//System.out.println(x);
+//			//lp.writeLp("modelSpecific"+x+".lp");
+//			lp.deleteLp();
+//		}
+//			
+//		//lp.deleteLp();
+//		
+//		final long end = System.nanoTime();
+//		System.out.println(formatTime(end - start));
+//		System.out.println("DONE");
+//
+//		closeFile();
+//			
+//	} catch (LpSolveException e) {
+//		e.printStackTrace();
+//	}
+}
   
+	private static void printOutput() throws LpSolveException {
+	
+		lp.getVariables(resultMatrix);
+		
+		for (int i = 0 ; i< resultMatrix.length; i++) {
+			if(resultMatrix[i] != 0) {
+				System.out.print((i % 9) + 1);
+			}
+		}
+		System.out.println();
+		System.out.println();
+}
+
+	private static boolean isValidInput(String line) {
+		if (line == null || line.length() != 81) {
+			return false;
+		}
+		char[] arr = line.toCharArray();
+		for(int i = 0; i < arr.length; i++) {
+			if(arr[i] < '0' || arr[i] > '9') {
+				return false;
+			}
+		}
+		
+		return true;
+}
+
 	public static int getIndex(int row, int column, int value) {
 		return 81 * (row - 1) + 9 * (column - 1) + value;
 	}
