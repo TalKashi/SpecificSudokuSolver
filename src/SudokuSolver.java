@@ -1,5 +1,4 @@
 import java.io.BufferedReader;
-import java.io.Console;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -51,7 +50,6 @@ public class SudokuSolver {
 						  } else {
 							  printOutput();
 						  }				  
-						  //lp.writeLp("modelSpecific"+x+".lp");
 						  lp.deleteLp();
 						  break;
 					  case ALL:
@@ -68,7 +66,6 @@ public class SudokuSolver {
 							  }
 							  lineNumber++;
 							  System.out.println("Finished line " + lineNumber);
-							  //lp.writeLp("modelSpecific"+x+".lp");
 							  lp.deleteLp();
 						  }
 						  final long end = System.nanoTime();
@@ -86,7 +83,6 @@ public class SudokuSolver {
 		catch (IOException e) {
 			  e.printStackTrace();
 		}
- 
 		System.out.println("Thanks for using our Specific Sudoku solver model!");
 	}
   
@@ -107,7 +103,6 @@ public class SudokuSolver {
 		if(line == null) {
 			return INVALID;
 		}
-		
 		if(line.length() == 1) {
 			if(line.toUpperCase().contains(EXIT_STRING)) {
 				return EXIT;
@@ -155,50 +150,49 @@ public class SudokuSolver {
 	}
 
 	private static void addConstraint(int i, int j, int value) throws LpSolveException {
-		int j1;
-		int v2;
-		int v3;
-		int v4;
-		int v;
+		int zero = 0;
+		int colVal;
+		int rowVal;
+		int boxVal;
+		int cellVal;
 		
 		int boxXTopCorner = (i / 3) * 3;
 		int boxYTopCorner = (j / 3) * 3;
 		
-		for(int k2 = 1; k2 <= ROW_SIZE; k2++) {
-			j1 = 0;
-			v = 0;
-			v2 = 0;
-			v3 = 0;
-			v4 = 0;
-			if(k2 == value) {
-				v = 1;
+		for(int run = 1; run <= ROW_SIZE; run++) {
+			cellVal = 0;
+			colVal = 0;
+			rowVal = 0;
+			boxVal = 0;
+			if(run == value) {
+				cellVal = 1;
 			}
-			if (k2 == i + 1) {
-				v2 = 1;
+			if (run == i + 1) {
+				colVal = 1;
 			}
-			if (k2 == j + 1) {
-				v3 = 1;
+			if (run == j + 1) {
+				rowVal = 1;
 			}
 			// No other integers in this (i,j) position
-			colno[j1] = getIndex(i + 1, j + 1, k2);
-			lp.addConstraintex(1, sparseRow, colno, LpSolve.EQ, v);
+			colno[zero] = getIndex(i + 1, j + 1, run);
+			lp.addConstraintex(1, sparseRow, colno, LpSolve.EQ, cellVal);
 			
 			// No other cell with this value on the same column
-			colno[j1] = getIndex(k2, j + 1, value);
-			lp.addConstraintex(1, sparseRow, colno, LpSolve.EQ, v2);
+			colno[zero] = getIndex(run, j + 1, value);
+			lp.addConstraintex(1, sparseRow, colno, LpSolve.EQ, colVal);
 			
 			// No other cell with this value on the same row
-			colno[j1] = getIndex(i + 1, k2, value);
-			lp.addConstraintex(1, sparseRow, colno, LpSolve.EQ, v3);
+			colno[zero] = getIndex(i + 1, run, value);
+			lp.addConstraintex(1, sparseRow, colno, LpSolve.EQ, rowVal);
 			
 			// No other cell with this value on the same 3x3 box
-			int boxX = boxXTopCorner + ((k2 - 1) / 3);
-			int boxY = boxYTopCorner + ((k2 - 1) % 3);
+			int boxX = boxXTopCorner + ((run - 1) / 3);
+			int boxY = boxYTopCorner + ((run - 1) % 3);
 			if(boxX == i && boxY == j) {
-				v4 = 1;
+				boxVal = 1;
 			}			
-			colno[j1] = getIndex( boxX + 1, boxY + 1, value);
-			lp.addConstraintex(1, sparseRow, colno, LpSolve.EQ, v4);
+			colno[zero] = getIndex( boxX + 1, boxY + 1, value);
+			lp.addConstraintex(1, sparseRow, colno, LpSolve.EQ, boxVal);
 		}
 	}
 	
