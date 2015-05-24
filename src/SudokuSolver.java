@@ -8,6 +8,7 @@ import lpsolve.*;
 
 public class SudokuSolver {
 	
+	static final String EXIT_STRING = "Q";
 	static final int VAR_NUMBER = 729;
 	static final int CELLS_NUM = 81;
 	static final int ROW_SIZE = (int) Math.sqrt(CELLS_NUM);
@@ -28,10 +29,12 @@ public class SudokuSolver {
 	  
 	  try {
 		  while(true) {
-			  System.out.println("Please enter 81 digits that represent the Sudoku puzzle:");
+			  System.out.println("Please enter 81 digits that represent the Sudoku puzzle, or Q to quit:");
 			  String line = reader.readLine();
 			  if(!isValidInput(line)) {
 				  System.out.println("Invalid input");
+			  } else if (line.toUpperCase().contains(EXIT_STRING)) {
+				  break;
 			  } else {
 				  // Run line 
 				  initLp();
@@ -52,8 +55,11 @@ public class SudokuSolver {
 	  }
 	  catch (IOException e) {
 		  e.printStackTrace();
-	}
+	  }
 	  
+	  closeFile();
+	  
+	  System.out.println("Thanks for using our Specific Sudoku solver model!");
 	  
 	  
 //	  try {
@@ -105,7 +111,17 @@ public class SudokuSolver {
 }
 
 	private static boolean isValidInput(String line) {
-		if (line == null || line.length() != 81) {
+		if(line == null) {
+			return false;
+		}
+		if(line.length() == 1) {
+			if(line.toUpperCase().contains(EXIT_STRING)) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		if (line.length() != 81) {
 			return false;
 		}
 		char[] arr = line.toCharArray();
